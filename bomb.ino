@@ -46,6 +46,7 @@ void	bomb_run( void )
 {
 	int		start		= 0;
 
+	BUZZER_ON;
 	timestamp = ( millis() / 1000 ) + ( bomb_times[ 0 ] * 60 );
 	lcd.clear();
 	while ( 42 )
@@ -61,15 +62,22 @@ void	bomb_run( void )
 
 		if ( !start && !( BTN_WAIT ) )
 			start = 1;
-		if ( start && bomb_progress() )
-			break ;
+		if ( start && ( BTN_WAIT ) )
+		{
+			BUZZER_OFF;
+			if ( bomb_progress() )
+				break ;
+			BUZZER_ON;
+		}
 
+		timer.run();
 		delay( 50 );
 	}
+	BUZZER_OFF;
 
 	bomb_finish();
-	while ( 42 )
-		;
+//	while ( 42 )
+//		;
 	return ;
 }
 

@@ -1,5 +1,7 @@
 /*** Préconfiguration ***/
+#define			SI					signed int
 #define			SL					signed long
+#define			UI					unsigned int
 #define			UL					unsigned long
 
 /*** Ecran ***/
@@ -24,14 +26,14 @@
 LiquidCrystal	lcd( LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7 );
 
 /*** LEDs ***/
-#define			LED_BLUE			6
-#define			LED_YELLOW			7
+#define			LED_BLUE			A3
+#define			LED_YELLOW			A2
 
 #define			LED_BLUE_INIT		pinMode( LED_BLUE, OUTPUT )
 #define			LED_YELLOW_INIT		pinMode( LED_YELLOW, OUTPUT )
 
-#define			LED_BLUE_ON			digitalWrite( LED_BLUE, HIGH )
-#define			LED_YELLOW_ON		digitalWrite( LED_YELLOW, HIGH )
+#define			LED_BLUE_ON			analogWrite( LED_BLUE, 150 )
+#define			LED_YELLOW_ON		analogWrite( LED_YELLOW, 150 )
 #define			LED_BLUE_OFF		digitalWrite( LED_BLUE, LOW )
 #define			LED_YELLOW_OFF		digitalWrite( LED_YELLOW, LOW )
 
@@ -50,8 +52,19 @@ LiquidCrystal	lcd( LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7 );
 #define			BTN_WAIT			BTN_BLUE_ON || BTN_YELLOW_ON
 #define			BTN_WAIT_LOOP		while ( BTN_WAIT ) delay( 50 )
 
+/*** Buzzer ***/
+#include		<MyTone.h>
+Tone			buzzer;
+#include		<SimpleTimer.h>
+SimpleTimer		timer;
+#define			BUZZER_INIT			buzzer.begin( A4 ); timer.setInterval( 1000, callback )
+#define			BUZZER_ON			beep = 1
+#define			BUZZER_OFF			beep = 0
+
+/*** Autre ***/
 #define			SIZEOF( var, type )	sizeof( var ) / sizeof( type )
 
+int				beep				= 0;
 int				spaces				= 0;
 int				timestamp			= 0;
 
@@ -67,6 +80,8 @@ uint8_t			chars[][ 8 ]		= {
 
 void	setup()
 {
+	BUZZER_INIT;
+
 	LED_BLUE_INIT;
 	LED_YELLOW_INIT;
 
@@ -106,7 +121,43 @@ void	loop()
 	else if ( BTN_YELLOW_ON && ( mode = 2 ) )
 		flags();
 
+	timer.run();
 	delay( 50 );
+	return ;
+}
+
+void  display_tone( unsigned int freq, unsigned long millis )
+{
+	display_tone( freq, millis, false );
+
+	return ;
+}
+
+void  display_tone( unsigned int freq, unsigned long millis, bool wait )
+{
+	buzzer.play( freq, millis );
+	if ( wait )
+		delay( millis * 1.30 );
+
+	return ;
+}
+
+void	callback( void )
+{
+	UI		note			= 4978;
+
+	if ( !beep )
+		return ;
+
+	if ( ( millis() / 1000 ) % 2 )
+	{
+		display_tone( note - 100, 30 );
+		delay( 25 );
+		display_tone( note + 100, 50 );
+	}
+	else
+		display_tone( note, 75 );
+
 	return ;
 }
 
@@ -114,8 +165,12 @@ int		progress( int secs, int ( *check )( int ), int limit )
 {
 	UL		start;
 	UL		finish;
+	int		temp;
+	int		period;
 	int		pressed;
 
+	temp = 0;
+	period = 0;
 	start = millis();
 	finish = start + ( secs * 1000 );
 
@@ -131,9 +186,17 @@ int		progress( int secs, int ( *check )( int ), int limit )
 		if ( millis() >= finish )
 			return ( 1 );
 		else if ( check != NULL && check( limit ) )
-			return ( 0 );
+			break ;
 
+		if ( temp != ( millis() / 450 ) % 10 )
+		{
+			period = !period;
+			temp = ( millis() / 450 ) % 10;
+			buzzer.play( period ? 831 : 3322, 330 );
+		}
 		display_progress( start / 100, finish / 100, millis() / 100 );
+
+		timer.run();
 		delay( 5 );
 	}
 
@@ -164,7 +227,7 @@ void	display_progress( int start, int finish, int current )
 			temp = ( temp < 0 ) ? 0 : ( ( temp * 5 ) / divs );
 			temp = ( temp > 5 ) ? 5 : temp;
 
-			if ( spaces && ! temp )
+			if ( spaces && !temp )
 				lcd.write( ( uint8_t ) 6 );
 			else
 				lcd.write( ( uint8_t ) ( temp ) );
@@ -222,6 +285,7 @@ void	select_number( int *times, int size, int *numbers )
 
 void	finish( void )
 {
+	buzzer.play( 4000 );
 	for ( int i = 10; i; --i )
 	{
 		LCD_BACLIGHT_OFF;
@@ -229,6 +293,7 @@ void	finish( void )
 		LCD_BACLIGHT_ON;
 		delay( 500 );
 	}
+	buzzer.stop();
 
 	return ;
 }

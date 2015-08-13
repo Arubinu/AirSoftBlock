@@ -61,20 +61,21 @@ void	flags_run( void )
 		}
 
 		flags_teams();
-		if ( ( change = flags_progress( start ) ) == 1 )
-			timestamp = millis() / 1000;
-
 		if ( !start )
 		{
 			start = ( millis() / 1000 ) + ( flags_times[ 0 ] * 60 );
 			BTN_WAIT_LOOP;
 		}
+		else if ( ( change = flags_progress( start ) ) == 1 )
+			timestamp = millis() / 1000;
+
+		timer.run();
 		delay( 50 );
 	}
 
 	flags_finish();
-	while ( 42 )
-		;
+//	while ( 42 )
+//		;
 	return ;
 }
 
