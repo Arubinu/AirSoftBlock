@@ -53,8 +53,8 @@ LiquidCrystal	lcd( LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7 );
 #define			BTN_WAIT_LOOP		while ( BTN_WAIT ) delay( 50 )
 
 /*** Buzzer ***/
-#include		<MyTone.h>
-Tone			buzzer;
+#include		<Buzzer.h>
+Buzzer			buzzer;
 #include		<SimpleTimer.h>
 SimpleTimer		timer;
 #define			BUZZER_INIT			buzzer.begin( A4 ); timer.setInterval( 1000, callback )
