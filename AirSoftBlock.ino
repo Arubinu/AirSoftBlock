@@ -18,7 +18,7 @@
 #define			LCD_BACLIGHT_ON		analogWrite( LCD_A, 150 )
 #define			LCD_BACLIGHT_OFF	digitalWrite( LCD_A, 0 )
 
-#define			LCD_INIT			lcd.begin( 16, 2 ); for ( int i = 0; i <= 6; ++i ) lcd.createChar( ( uint8_t ) i, ( uint8_t * ) chars[ i ] )
+#define			LCD_INIT			lcd.begin( 16, 2 ); for ( int i = 0; i < 8; ++i ) lcd.createChar( ( uint8_t ) i, ( uint8_t * ) chars[ i ] )
 #define			LCD_A_INIT			pinMode( LCD_A, OUTPUT ); LCD_BACLIGHT_ON
 #define			LCD_V0_INIT			pinMode( LCD_V0, OUTPUT ); analogWrite( LCD_V0, 100 )
 
@@ -67,7 +67,7 @@ SimpleTimer		timer;
 int				beep				= 0;
 int				spaces				= 0;
 int				timestamp			= 0;
-
+/*
 uint8_t			chars[][ 8 ]		= {
 	{  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0 },
 	{ 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10 },
@@ -76,6 +76,17 @@ uint8_t			chars[][ 8 ]		= {
 	{ 0x1E, 0x1E, 0x1E, 0x1E, 0x1E, 0x1E, 0x1E, 0x1E },
 	{ 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F },
 	{  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0, 0x1F },
+};
+*/
+uint8_t			chars[][ 8 ]		= {
+	{ 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10 },
+	{  0x0,  0xf, 0x10, 0x10, 0x10, 0x10, 0x10,  0xf },
+	{  0x0,  0xf, 0x10, 0x13, 0x13, 0x13, 0x10,  0xf },
+	{  0x0, 0x1e,  0x1,  0x1,  0x1,  0x1,  0x1, 0x1e },
+	{  0x0, 0x1e,  0x1, 0x19, 0x19, 0x19,  0x1, 0x1e },
+	{  0x0, 0x1f,  0x0,  0x0,  0x0,  0x0,  0x0, 0x1f },
+	{  0x0, 0x1f,  0x0, 0x18, 0x18, 0x18,  0x0, 0x1f },
+	{  0x0, 0x1f,  0x0, 0x1b, 0x1b, 0x1b,  0x0, 0x1f },
 };
 
 void	setup()
@@ -219,6 +230,34 @@ void	display_progress( int start, int finish, int current )
 	for ( int columns = 0; columns < 16; ++columns )
 	{
 		temp = divs * columns;
+
+		temp = current - temp;
+		temp = ( temp < 0 ) ? 0 : ( ( temp * 2 ) / divs );
+		temp = ( temp > 2 ) ? 2 : temp;
+
+		if ( columns == 0 )
+			lcd.write( ( uint8_t ) ( 1 + ( ( temp == 2 ) ? 1 : 0 ) ) );
+		else if ( columns == 15 )
+			lcd.write( ( uint8_t ) ( 3 + ( ( temp == 2 ) ? 1 : 0 ) ) );
+		else
+			lcd.write( ( uint8_t ) ( 5 + temp ) );
+	}
+
+	return ;
+}
+
+/*
+void	display_progress( int start, int finish, int current )
+{
+	int		temp			= 0;
+	int		divs			= ( finish - start ) / 16;
+
+	current -= start;
+	lcd.setCursor( 0, 1 );
+
+	for ( int columns = 0; columns < 16; ++columns )
+	{
+		temp = divs * columns;
 		if ( current > ( temp + columns ) )
 			lcd.write( ( uint8_t ) 5 );
 		else
@@ -236,6 +275,7 @@ void	display_progress( int start, int finish, int current )
 
 	return ;
 }
+*/
 
 void	display_time( int sec )
 {

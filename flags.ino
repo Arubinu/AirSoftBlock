@@ -87,7 +87,7 @@ void	flags_teams( void )
 	display_time( teams[ 0 ] + ( ( capture == 1 ) ? ( millis() / 1000 ) - timestamp : 0 ) );
 
 	lcd.print( F( " " ) );
-	lcd.write( byte( 1 ) );
+	lcd.write( ( uint8_t ) 0 );
 
 	display_time( teams[ 1 ] + ( ( capture == 2 ) ? ( millis() / 1000 ) - timestamp : 0 ) );
 	lcd.print( F( " B" ) );
