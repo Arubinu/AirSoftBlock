@@ -31,8 +31,10 @@ void	bomb( void )
 	while ( 42 )
 	{
 		lcd.setCursor( 0, 1 );
-		for ( int i = 16; i; --i )
-			lcd.write( ( uint8_t ) 6 );
+		lcd.write( ( uint8_t ) 1 );
+		for ( int i = 15; i > 1; --i )
+			lcd.write( ( uint8_t ) 5 );
+		lcd.write( ( uint8_t ) 3 );
 
 		if ( progress( bomb_times[ 1 ] ) )
 			break ;
@@ -57,8 +59,10 @@ void	bomb_run( void )
 		lcd.setCursor( 6, 0 );
 		display_time( timestamp - ( millis() / 1000 ) );
 		lcd.setCursor( 0, 1 );
-		for ( int i = 16; i; --i )
-			lcd.write( ( uint8_t ) 6 );
+		lcd.write( ( uint8_t ) 1 );
+		for ( int i = 15; i > 1; --i )
+			lcd.write( ( uint8_t ) 5 );
+		lcd.write( ( uint8_t ) 3 );
 
 		if ( !start && !( BTN_WAIT ) )
 			start = 1;
