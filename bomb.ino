@@ -76,8 +76,8 @@ void	bomb_run( void )
 	BUZZER_OFF;
 
 	bomb_finish();
-//	while ( 42 )
-//		;
+	while ( 42 )
+		;
 	return ;
 }
 
@@ -97,6 +97,8 @@ int		bomb_check( int limit )
 void	bomb_finish( void )
 {
 	lcd.home();
+	LED_BLUE_ON;
+	LED_YELLOW_ON;
 	if ( ( millis() / 1000 ) >= timestamp )
 		lcd.print( " Bombe  Explose " );
 	else

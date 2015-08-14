@@ -74,8 +74,8 @@ void	flags_run( void )
 	}
 
 	flags_finish();
-//	while ( 42 )
-//		;
+	while ( 42 )
+		;
 	return ;
 }
 
@@ -136,14 +136,26 @@ void	flags_finish( void )
 		teams[ capture - 1 ] += ( ( millis() / 1000 ) - flags_times[ 1 ] ) - timestamp;
 
 	lcd.home();
+	LED_BLUE_OFF;
+	LED_YELLOW_OFF;
 	if ( teams[ 0 ] == teams[ 1 ] )
+	{
+		LED_BLUE_ON;
+		LED_YELLOW_ON;
 		lcd.print( "   Match  Nul   " );
+	}
 	else
 	{
 		if ( teams[ 0 ] > teams[ 1 ] )
+		{
+			LED_YELLOW_ON;
 			lcd.print( " Gagnant  Jaune " );
+		}
 		else
+		{
+			LED_BLUE_ON;
 			lcd.print( "  Gagnant Bleu  " );
+		}
 	}
 
 	finish();
