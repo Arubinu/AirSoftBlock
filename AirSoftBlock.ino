@@ -8,15 +8,17 @@
 #define			LCD_D4				2
 #define			LCD_D5				3
 #define			LCD_D6				4
-#define			LCD_D7				5
+#define			LCD_D7				7
 
 #define			LCD_A				9
 #define			LCD_V0				10
 #define			LCD_E				11
 #define			LCD_RS				12
 
-#define			LCD_BACLIGHT_ON		analogWrite( LCD_A, 150 )
-#define			LCD_BACLIGHT_OFF	digitalWrite( LCD_A, 0 )
+#define			LCD_MAX				150
+
+#define			LCD_BACLIGHT_ON		analogWrite( LCD_A, LCD_MAX )
+#define			LCD_BACLIGHT_OFF	digitalWrite( LCD_A, LOW )
 
 #define			LCD_INIT			lcd.begin( 16, 2 ); for ( int i = 0; i < 8; ++i ) lcd.createChar( ( uint8_t ) i, ( uint8_t * ) chars[ i ] )
 #define			LCD_A_INIT			pinMode( LCD_A, OUTPUT ); LCD_BACLIGHT_ON
@@ -26,14 +28,21 @@
 LiquidCrystal	lcd( LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7 );
 
 /*** LEDs ***/
-#define			LED_BLUE			A3
-#define			LED_YELLOW			A2
+#define			LED_BLUE			5
+#define			LED_YELLOW			6
+
+#define			LED_MAX				LCD_MAX
 
 #define			LED_BLUE_INIT		pinMode( LED_BLUE, OUTPUT )
 #define			LED_YELLOW_INIT		pinMode( LED_YELLOW, OUTPUT )
 
-#define			LED_BLUE_ON			analogWrite( LED_BLUE, 150 )
-#define			LED_YELLOW_ON		analogWrite( LED_YELLOW, 150 )
+#define			LED_BLUE_READ_A		analogRead( LED_BLUE )
+#define			LED_YELLOW_READ_A	analogRead( LED_YELLOW )
+#define			LED_BLUE_READ_D		digitalRead( LED_BLUE )
+#define			LED_YELLOW_READ_D	digitalRead( LED_YELLOW )
+
+#define			LED_BLUE_ON			analogWrite( LED_BLUE, LED_MAX )
+#define			LED_YELLOW_ON		analogWrite( LED_YELLOW, LED_MAX )
 #define			LED_BLUE_OFF		digitalWrite( LED_BLUE, LOW )
 #define			LED_YELLOW_OFF		digitalWrite( LED_YELLOW, LOW )
 
@@ -282,16 +291,53 @@ void	select_number( int *times, int size, int *numbers )
 	return ;
 }
 
+void	gradient( int pin, bool asc, UI wait )
+{
+	gradient( pin, -1, asc, wait );
+
+	return ;
+}
+
+void	gradient( int pin1, int pin2, bool asc, UI wait )
+{
+	int		val				= asc ? 0 : LED_MAX;
+
+	if ( pin1 < 0 && pin2 < 0 )
+		return ;
+
+	for ( ; ( asc && val <= LED_MAX ) || ( ! asc && val >= 0 ); val += ( asc ? 1 : -1 ) )
+	{
+		if ( pin1 >= 0 )
+			analogWrite( pin1, val );
+		if ( pin2 >= 0 )
+			analogWrite( pin2, val );
+		delay( wait );
+	}
+
+	return ;
+}
+
 void	finish( void )
 {
 	buzzer.play( 4000 );
+	if ( LED_YELLOW_READ_D && LED_BLUE_READ_D )
+		gradient( LED_YELLOW, LED_BLUE, false, 2 );
+	else
+	{
+		if ( LED_YELLOW_READ_D )
+			gradient( LED_YELLOW, false, 2 );
+		if ( LED_BLUE_READ_D )
+			gradient( LED_BLUE, false, 2 );
+	}
+
 	for ( int i = 10; i; --i )
 	{
 		LCD_BACLIGHT_OFF;
-		delay( 250 );
+		gradient( LED_YELLOW, LED_BLUE, true, 1 );
 		LCD_BACLIGHT_ON;
-		delay( 500 );
+		gradient( LED_YELLOW, LED_BLUE, false, 2 );
 	}
+	gradient( LED_YELLOW, LED_BLUE, 1, 1 );
 	buzzer.stop();
 
 	return ;

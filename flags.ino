@@ -101,7 +101,7 @@ int		flags_progress( int limit )
 		|| ( BTN_YELLOW_ON && capture != 1 ) )
 	{
 		lcd.home();
-		lcd.print( ( BTN_YELLOW_ON ) ? F( " Capture  Jaune " ) : F( "  Capture Bleu  " ) );
+		lcd.print( ( BTN_YELLOW_ON && capture != 1 ) ? F( " Capture  Jaune " ) : F( "  Capture Bleu  " ) );
 
 		if ( flags_times[ 1 ] && !progress( flags_times[ 1 ], &flags_check, limit ) )
 			return ( 2 );
